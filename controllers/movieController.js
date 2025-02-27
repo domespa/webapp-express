@@ -12,7 +12,7 @@ function index(req, res) {
 
 // Show
 function show(req, res) {
-  const id = req.params.id;
+  const { id } = req.params;
 
   // per i film
   const movieSql = `
@@ -39,4 +39,19 @@ function show(req, res) {
   });
 }
 
-module.exports = { index, show };
+// Store review
+const storeReview = (req, res) => {
+  const { id } = req.params;
+
+  // recupero il body della richiesta
+  const { name, vote, text } = req.body;
+
+  //query
+  const sql = `INSERT INTO reviews (movie_id, name, vote, text) VALUES (?, ?, ?, ?)`;
+  connection.execute(sql, [id, name, vote, text], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database query failed" });
+    res.status(201).json({ id: results.insertId });
+  });
+};
+
+module.exports = { index, show, storeReview };
