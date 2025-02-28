@@ -2,8 +2,11 @@ const connection = require("../data/db");
 
 function index(req, res) {
   const sql = `
-        SELECT * FROM movies
-        `;
+        SELECT movies.*, ROUND(avg(reviews.vote))  as avg_vote
+        FROM movies
+        LEFT JOIN reviews ON movies.id = reviews.movie_id
+        GROUP BY movies.id
+          `;
   connection.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: "Database query failed" });
     res.json(results);
@@ -16,7 +19,7 @@ function show(req, res) {
 
   // per i film
   const movieSql = `
-        SELECT * FROM movies WHERE id = ?`;
+          SELECT * FROM movies WHERE id = ?`;
 
   connection.query(movieSql, [id], (err, movieResults) => {
     if (err) return res.status(500).json({ error: "Database query failed" });
@@ -27,7 +30,7 @@ function show(req, res) {
 
     // per le recensioni
     const reviewSql = `
-        SELECT * FROM reviews WHERE movie_id = ?`;
+          SELECT * FROM reviews WHERE movie_id = ?`;
 
     connection.query(reviewSql, [id], (err, reviewResults) => {
       if (err) return res.status(500).json({ error: "Database query failed" });
