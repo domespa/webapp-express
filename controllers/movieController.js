@@ -19,7 +19,12 @@ function show(req, res) {
 
   // per i film
   const movieSql = `
-          SELECT * FROM movies WHERE id = ?`;
+    SELECT movies.*, ROUND(AVG(reviews.vote)) as avg_vote
+    FROM movies
+    LEFT JOIN reviews ON movies.id = reviews.movie_id
+    WHERE movies.id = ?
+    GROUP BY movies.id
+  `;
 
   connection.query(movieSql, [id], (err, movieResults) => {
     if (err) return res.status(500).json({ error: "Database query failed" });
